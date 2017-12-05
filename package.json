@@ -1,0 +1,14 @@
+{
+  "name": "hkbt",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": "https://github.com/batu4404/hkbt.git",
+  "author": "feedvai <batu4404@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
+}
