@@ -58,82 +58,74 @@ shiftLeft(board, 4);
 printBoard(board);
 */
 
-function shiftRow(row, size=4) {
+function shiftRowLeft(row, size=4) {
 	let lastIndex = 0;
+    let temp;
 	for (let c = 0; c < size; c++) {
-    if (row[c] !== 0) {
-    	if (lastIndex !== c) {
-        if (row[lastIndex] === 0) {
-          row[lastIndex] = row[c];
-          row[c] = 0;
+        if (row[c] !== 0) {
+        	if (lastIndex !== c) {
+                if (row[lastIndex] === 0) {
+                    row[lastIndex] = row[c];
+                    row[c] = 0;
+                }
+                else {
+                    if (row[lastIndex] === row[c]) {
+                        row[lastIndex] *= 2;
+                        row[c] = 0;
+                        lastIndex++;
+                    }
+                    else {
+                        lastIndex++;
+                        // use temp because lastIndex after increase can be equal to c
+                        temp = row[c];
+                        row[c] = 0;
+                        row[lastIndex] = temp;
+                    }
+                }
+        	}
         }
-        else if (row[c] === row[lastIndex]) {
-          row[lastIndex] += row[c];
-          lastIndex++;
-          row[c] = 0;
-        }
-        else {
-          if (lastIndex+1 != c) {
-          	row[lastIndex+1] = row[c];
-            lastIndex += 2;
-          	row[c] = 0;
-          } else {
-          	lastIndex++;
-          }
-        }
-    	}
     }
-  }
+
+    return row;
 }
 
-row = [4, 0, 2, 2]
+function shiftRowRight(row, size=4) {
+    let lastIndex = size-1;
+    let temp;
+    for (let c = size-1; c >= 0; c--) {
+        if (row[c] !== 0) {
+            if (lastIndex !== c) {
+                if (row[lastIndex] === 0) {
+                    row[lastIndex] = row[c];
+                    row[c] = 0;
+                }
+                else {
+                    if (row[lastIndex] === row[c]) {
+                        row[lastIndex] *= 2;
+                        row[c] = 0;
+                        lastIndex--;
+                    }
+                    else {
+                        lastIndex--;
+                        // use temp because lastIndex after increase can be equal to c
+                        temp = row[c];
+                        row[c] = 0;
+                        row[lastIndex] = temp;
+                    }
+                }
+            }
+        }
+    }
 
-console.log(JSON.stringify(row));
-console.log('=============================')
-shiftRow(row);
-console.log(JSON.stringify(row));
+    return row;
+}
 
-// d1 = new Date('2017-12-01T07:55:18.553Z');
-// d2 = new Date('2017-12-01T07:57:18.553Z');
-// console.log('d1 < d2', d1 < d2)
-// console.log('d1', d1)
-// let now = new Date()
-// console.log('now', Date.now())
-// console.log('d1 < now', d1 < now)
-// console.log('d1 > now', d1 > now)
+module.exports.shiftRowLeft = shiftRowLeft;
+module.exports.shiftRowRight = shiftRowRight;
 
-// console.log('d1 date', d1.getDate())
-// d1.setDate(d1.getDate() - 10);
-// console.log('d1', d1)
+// row = [4, 0, 2, 2]
 
-// noti = {id: 1}
-// test = {id: 1, deleted: true}
-// console.log('test', noti.id === test.id && test.deleted)
-// noti = {id: 1, deleted: true}
-// test = {id: 1}
-// a = (noti.id === test.id) && test.deleted
-// console.log('type', typeof a)
-// console.log('test', (noti.id === test.id) && test.deleted)
-
-// a = {c: 1}
-// a['test'] = 1
-// console.log(a)
-
-// noti = {...noti, deleted: false}
-// console.log('noti', noti)
-
-
-// let un;
-// console.log('un', typeof un);
-// un = 1;
-// if (un) {
-// 	console.log(1);
-// } else {
-// 	 console.log(2);
-// }
-
-
-// var patt = /-*\d+/i
-// var exc = patt.exec("-12 tháng 33");
-// console.log('exc', exc.toString());
-// console.log('exc', Number(exc.toString()));
+// console.log(JSON.stringify(row));
+// console.log('=============================')
+// shiftRow(row);
+// console.log(JSON.stringify(row));
