@@ -18,6 +18,9 @@ class TransformView extends Component {
 
     animate() {
         let transform = this.props.transform;
+        if (!transform) {
+            return;
+        }
         
         if (transform.hasOwnProperty('translateX')) {
             Animated.timing(
@@ -37,6 +40,32 @@ class TransformView extends Component {
                     easing: Easing.linear()
                 }
             ).start();
+        }
+    }
+
+    transform(transform, onCompleteTransform) {
+        if (!transform) {
+            return;
+        }
+        
+        if (transform.hasOwnProperty('translateX')) {
+            Animated.timing(
+                this.state.translateX,
+                {
+                    toValue: transform.translateX,
+                    duration: 200,
+                    easing: Easing.linear()
+                }
+            ).start(onCompleteTransform);
+        } else if (transform.hasOwnProperty('translateY')) {
+            Animated.timing(
+                this.state.translateY,
+                {
+                    toValue: transform.translateY,
+                    duration: 200,
+                    easing: Easing.linear()
+                }
+            ).start(onCompleteTransform);
         }
     }
 
@@ -69,7 +98,7 @@ class TransformView extends Component {
 
 class ZoomView extends Component {
     state = {
-        scale: new Animated.Value(0),
+        scale: new Animated.Value(0.2),
     }
 
     componentWillMount() {
@@ -77,7 +106,7 @@ class ZoomView extends Component {
             this.state.scale,
             {
                 toValue: 1,
-                duration: 200,
+                duration: 100,
             }
         ).start()
     }
@@ -136,6 +165,7 @@ const BackgroundView = ({style, size}) => {
     )
 }
 
+let id = 1;
 
 export default class App extends Component {
     constructor(props) {
@@ -147,6 +177,7 @@ export default class App extends Component {
             transform: {translateY: 0, translateX: 0},
             originPosition: {x: sizeOfTile, y: sizeOfTile},
             position: {x: sizeOfTile, y: sizeOfTile},
+            test: null,
         };
     }
 
@@ -178,6 +209,8 @@ export default class App extends Component {
             let nextPosition = {x: this.state.position.x, y: (y-sizeOfTile)};
             let transform = this.calculateTransform(this.state.originPosition, nextPosition, false);
 
+            this.transformView.transform(transform, this.onCompleteTransform);
+
             this.setState({
                 message: 'Swiped up!',
                 position: nextPosition,
@@ -192,6 +225,8 @@ export default class App extends Component {
         if (y < 3*sizeOfTile) {
             let nextPosition = {x: this.state.position.x, y: (y+sizeOfTile)};
             let transform = this.calculateTransform(this.state.originPosition, nextPosition, false);
+
+            this.transformView.transform(transform, this.onCompleteTransform);
 
             this.setState({
                 message: 'Swiped up!',
@@ -208,6 +243,8 @@ export default class App extends Component {
             let nextPosition = {x: (x-sizeOfTile), y: this.state.position.y};
             let transform = this.calculateTransform(this.state.originPosition, nextPosition, true);
 
+            this.transformView.transform(transform, this.onCompleteTransform);
+
             this.setState({
                 message: 'Swiped left!',
                 position: nextPosition,
@@ -223,6 +260,8 @@ export default class App extends Component {
             let nextPosition = {x: (x+sizeOfTile), y: this.state.position.y};
             let transform = this.calculateTransform(this.state.originPosition, nextPosition, true);
 
+            this.transformView.transform(transform, this.onCompleteTransform);
+
             this.setState({
                 message: 'Swiped right!',
                 position: nextPosition,
@@ -231,11 +270,23 @@ export default class App extends Component {
         }
         // this.setState({message: 'Swiped right!', transform: {translateX: sizeOfTile}});
     }
+
+    onCompleteTransform = () => {
+        console.log("completed", this.state);
+       
+        this.setState({
+            test: {
+                x: this.state.position.x,
+                y: this.state.position.y,
+                id: id++,
+            }
+        })
+    }
     
     render() {
         const config = {
-            velocityThreshold: 0,
-            directionalOffsetThreshold: 50
+            velocityThreshold: 0.0,
+            directionalOffsetThreshold: 50,
         };
 
         return (
@@ -260,10 +311,12 @@ export default class App extends Component {
                     
                     
                     <TransformView
+                        onCompleteTransform={this.onComplete}
+                        ref={transformView => this.transformView = transformView}
                         style={{position: 'absolute',
                         width: sizeOfTile,
                         height: sizeOfTile, left: this.state.originPosition.x, top: this.state.originPosition.y}}
-                        transform={this.state.transform}
+                        // transform={this.state.transform}
                     >
                         <ZoomView
                             style={styles.zoomContainer}
@@ -273,6 +326,25 @@ export default class App extends Component {
                             </View>
                         </ZoomView>
                     </TransformView>
+                    {   
+                    this.state.test ?
+                        <TransformView
+                        key={this.state.test.id}
+                        style={{position: 'absolute',
+                        width: sizeOfTile,
+                        height: sizeOfTile, left: this.state.test.x, top: this.state.test.y}}
+                    >
+                        <ZoomView
+                            style={styles.zoomContainerTest}
+                        >
+                            <View style={styles.item}>
+                                <Text style={styles.itemContent}>11</Text>
+                            </View>
+                        </ZoomView>
+                    </TransformView>
+                    :
+                    null
+                    }
                     {/*}
                     <ZoomView
                         style={{backgroundColor: 'yellow', height: sizeOfTile, width: sizeOfTile, justifyContent: 'center', position: 'absolute', right: 0, top: sizeOfTile}}
@@ -292,6 +364,9 @@ export default class App extends Component {
                 </View>
                 <View>
                     <Text>{'position: ' + JSON.stringify(this.state.position)}</Text>
+                </View>
+                <View>
+                    <Text>{'test: ' + JSON.stringify(this.state.test)}</Text>
                 </View>
             </View>
         )
@@ -331,6 +406,12 @@ const styles =  StyleSheet.create({
         // width: sizeOfTile,
         // height: sizeOfTile,
         backgroundColor: 'yellow',
+        justifyContent: 'center',
+    },
+    zoomContainerTest: {
+        flex: 1,
+        margin: 5,
+        backgroundColor: 'gray',
         justifyContent: 'center',
     },
     item: {
