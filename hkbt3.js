@@ -23,7 +23,7 @@ function shiftColumnUp(board, columnIndex, size=4) {
                         board[lastIndex][columnIndex].value = temp;
                     }
                 }
-          }
+            }
         }
     }
 
